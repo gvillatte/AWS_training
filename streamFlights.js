@@ -33,34 +33,38 @@ https.get('https://opensky-network.org/api/states/all?lamin=48.27&lomin=1.47&lam
 
   // The whole response has been received. Print out the result.
   resp.on('end', () => {
-	  
+
+//parse the JSON object	  
 var parsed = JSON.parse(data);
 var states = parsed.states;
- 
-for (let key in states) {
-var flight = states[key];
-var  idflight = flight[0];
-var  countryflight = flight[2];
-var dateflight = flight[3];
-var longitude = flight[5];
-var latitude = flight[6];
-var geo_point=''+latitude+','+longitude;
 
-var aircrafts = {
-    date: dateflight,
-    location: geo_point,
-	id:idflight,
-	country:countryflight
-}; 
-var record = {
-                Data: JSON.stringify({aircrafts
+//Loop on all the states objects to get the info we need 
+for (let key in states) {
+	var flight = states[key];
+	var  idflight = flight[0];
+	var  countryflight = flight[2];
+	var dateflight = flight[3];
+	var longitude = flight[5];
+	var latitude = flight[6];
+	var geo_point=''+latitude+','+longitude;
+
+	var aircrafts = {
+		date: dateflight,
+		location: geo_point,
+		id:idflight,
+		country:countryflight
+	};
+//Create the output JSON object	
+	var record = {
+				Data: JSON.stringify({aircrafts
                 }),
                 PartitionKey: 'partition-' + 'key1'
             };
-var recordData = [];
-recordData.push(record);
+	var recordData = [];
+	recordData.push(record);
   }
-console.log('Putting ' + recordData.lenght + ' records to kinesis');		
+console.log('Putting ' + recordData.lenght + ' records to kinesis');
+//send the data to Kinesis		
  kinesis.putRecords({
 				Records: recordData,
 				StreamName: 'flight_stream'
